@@ -1,4 +1,5 @@
-const XLSX = require("xlsx");
+const XLSX = require("xlsx-pro");
+const bufferFrom = require("buffer-from");
 const { SheetBuilder } = require("./sheetBuilder");
 
 class WorkbookBuilder {
@@ -20,15 +21,13 @@ class WorkbookBuilder {
         data.map((e) => {
             const sheetName = e.sheetName || "Excel";
             const sheetData = e.sheetData || [];
+            const sheetOptions = e.sheetOptions;
             this.workBook.SheetNames.push(sheetName);
-            this.workBook.Sheets[sheetName] = {};
-            Object.assign(this.workBook.Sheets[sheetName], sheetBuilder.build(sheetData, options));
+            this.workBook.Sheets[sheetName] = sheetBuilder.build(sheetData, sheetOptions);
         });
         const excelData = XLSX.write(this.workBook, { ...this.defaultOptions, ...options });
-        return excelData;
+        return excelData instanceof Buffer ? excelData : bufferFrom(excelData, "binary");
     }
 }
 
-module.exports = {
-    WorkbookBuilder
-};
+module.exports = { WorkbookBuilder };

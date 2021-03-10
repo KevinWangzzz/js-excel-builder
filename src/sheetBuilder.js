@@ -5,13 +5,21 @@ class SheetBuilder {
         this.sheet = {};
         this.defaultIniPos = { c: 0, r: 0 };
         this.currentPos = {};
+        this.sheetRange = {
+            s: { c: 0, r: 0 },
+            e: { c: 0, r: 0 }
+        };
     }
 
     updatePos(sectionRange, sectionGap) {
+        /** update the start position for next section */
         this.currentPos = {
             c: this.defaultIniPos.c,
             r: sectionRange.e.r + sectionGap + 1
         };
+        /** update the max effective range of the sheet */
+        this.sheetRange.e.r = sectionRange.e.r + sectionGap + 1;
+        if (sectionRange.e.c > this.sheetRange.e.c) this.sheetRange.e.c = sectionRange.e.c;
     }
 
     buildCell(cellData) {
@@ -37,7 +45,7 @@ class SheetBuilder {
 
     buildSection(sectionData, sectionGap) {
         const section = {};
-        const sectionWidth = section[0].length;
+        const sectionWidth = section[0] && section[0].length;
         const sectionHeight = section.length;
         const sectionRange = {
             s: { c: this.currentPos.c, r: this.currentPos.r },
@@ -45,8 +53,10 @@ class SheetBuilder {
         };
         for (let R = sectionRange.s.r; R <= sectionRange.e.r; ++R) {
             for (let C = sectionRange.s.c; C <= sectionRange.e.c; ++C) {
+                /** convert col and row num into excel coordinate */
                 const cellRef = XLSX.utils.encode_cell({ c: C, r: R });
-                section[cellRef] = this.buildCell(sectionData[R][C]);
+                /** remove the offset */
+                section[cellRef] = this.buildCell(sectionData[R - this.currentPos.r][C - this.currentPos.c]);
             }
         }
         Object.assign(this.sheet, section);
@@ -56,12 +66,14 @@ class SheetBuilder {
     build(sheetData, options, initPos = {}) {
         this.currentPos = Object.assign(this.defaultIniPos, initPos);
 
+        /** sheetData is devided into multiple sections */
         sheetData.forEach((e) => {
-            const sectionData = e.sectionData;
+            const sectionData = e.sectionData || [];
             const sectionGap = e.sectionGap || 0;
             this.buildSection(sectionData, sectionGap);
         });
-        return Object.assign(this.sheet, ...options);
+        const ref = xlsx.utils.encode_range(this.sheetRange);
+        return Object.assign(this.sheet, { "!ref": ref }, ...options);
     }
 }
 

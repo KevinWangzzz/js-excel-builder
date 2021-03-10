@@ -1,18 +1,19 @@
 {
-  "name": "sheet-builder",
-  "author": "KevinWang <KevinWang2020@sina.com>",
-  "version": "0.0.1",
-  "description": "A excel builder",
-  "main": "./src/index.js",
-  "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/KevinWangzzz/js-excel-builder.git"
-  },
-  "dependencies": {
-    "xlsx": "^0.16.9"
-  },
-  "devDependencies": {
-    "rimraf": "^3.0.2"
-  }
+    "name": "sheet-builder",
+    "author": "KevinWang <KevinWang2020@sina.com>",
+    "version": "0.0.1",
+    "description": "A excel builder",
+    "main": "./src/index.js",
+    "license": "ISC",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/KevinWangzzz/js-excel-builder.git"
+    },
+    "dependencies": {
+        "xlsx": "^0.16.9",
+        "buffer-from": "^1.1.1"
+    },
+    "devDependencies": {
+        "rimraf": "^3.0.2"
+    }
 }
