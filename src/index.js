@@ -1,4 +1,4 @@
-const XLSX = require("xlsx-pro");
+const XLSX = require("xlsx");
 const bufferFrom = require("buffer-from");
 const { SheetBuilder } = require("./sheetBuilder");
 
