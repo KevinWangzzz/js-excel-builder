@@ -1,7 +1,7 @@
 import commonjs from "rollup-plugin-commonjs";
 import resolve from "rollup-plugin-node-resolve";
 import babel from "rollup-plugin-babel";
-import { uglify } from "rollup-plugin-uglify";
+import { terser } from "rollup-plugin-terser";
 
 export default {
     input: "src/index.js",
@@ -13,10 +13,23 @@ export default {
     plugins: [
         babel({
             exclude: "node_modules/**",
-            runtimeHelpers: true
+            presets: [
+                [
+                    "@babel/preset-env",
+                    {
+                        targets: {
+                            browsers: ["last 2 version", "ie 11"]
+                        }
+                    }
+                ]
+            ],
+            plugins: [
+                ["@babel/plugin-transform-runtime", { helpers: false, regenerator: true }],
+                ["@babel/plugin-proposal-class-properties", { loose: true }]
+            ]
         }),
-        commonjs(),
-        resolve(),
-        uglify()
+        commonjs({ transformMixedEsModules: true }),
+        resolve({ extensions: [".js"] }),
+        terser()
     ]
 };
