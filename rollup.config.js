@@ -1,6 +1,7 @@
-import commonjs from "rollup-plugin-commonjs";
-import resolve from "rollup-plugin-node-resolve";
-import babel from "rollup-plugin-babel";
+import commonjs from "@rollup/plugin-commonjs";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import babel from "@rollup/plugin-babel";
+import nodePolyfills from "rollup-plugin-node-polyfills";
 import { terser } from "rollup-plugin-terser";
 
 export default {
@@ -8,10 +9,13 @@ export default {
     output: {
         file: "dist/excelBuilder-min.js",
         name: "ExcelBuilder",
-        format: "cjs"
+        format: "cjs",
+        exports: "named"
     },
     plugins: [
+        commonjs({ transformMixedEsModules: true }),
         babel({
+            babelHelpers: "runtime",
             exclude: "node_modules/**",
             presets: [
                 [
@@ -24,12 +28,13 @@ export default {
                 ]
             ],
             plugins: [
-                ["@babel/plugin-transform-runtime", { helpers: false, regenerator: true }],
+                ["@babel/plugin-transform-runtime", { helpers: true, regenerator: true }],
                 ["@babel/plugin-proposal-class-properties", { loose: true }]
             ]
         }),
-        commonjs({ transformMixedEsModules: true }),
-        resolve({ extensions: [".js"] }),
+        nodePolyfills(),
+        nodeResolve({ preferBuiltins: false }),
         terser()
-    ]
+    ],
+    external: ["xlsx", "buffer-from"]
 };
