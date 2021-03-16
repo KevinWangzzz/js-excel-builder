@@ -2,7 +2,6 @@ const XLSX = require("xlsx");
 
 class SheetBuilder {
     constructor() {
-        this.sheet = {};
         this.defaultIniPos = { c: 0, r: 0 };
         this.currentPos = {};
         this.sheetRange = {
@@ -43,7 +42,7 @@ class SheetBuilder {
         return cell;
     }
 
-    buildSection(sectionData, sectionGap) {
+    buildSection(sectionData, sectionGap, sheet) {
         const section = {};
         const sectionWidth = section[0] && section[0].length;
         const sectionHeight = section.length;
@@ -59,21 +58,22 @@ class SheetBuilder {
                 section[cellRef] = this.buildCell(sectionData[R - this.currentPos.r][C - this.currentPos.c]);
             }
         }
-        Object.assign(this.sheet, section);
+        Object.assign(sheet, section);
         this.updatePos(sectionRange, sectionGap);
     }
 
     build(sheetData, options, initPos = {}) {
+        const sheet = {};
         this.currentPos = Object.assign(this.defaultIniPos, initPos);
 
         /** sheetData is devided into multiple sections */
         sheetData.forEach((e) => {
             const sectionData = e.sectionData || [];
             const sectionGap = e.sectionGap || 0;
-            this.buildSection(sectionData, sectionGap);
+            this.buildSection(sectionData, sectionGap, sheet);
         });
         const ref = xlsx.utils.encode_range(this.sheetRange);
-        return Object.assign(this.sheet, { "!ref": ref }, ...options);
+        return Object.assign(sheet, { "!ref": ref }, ...options);
     }
 }
 
